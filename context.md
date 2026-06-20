@@ -1,7 +1,7 @@
 # BSFA 프로젝트 컨텍스트
 
 > 이 문서는 논의를 진행하며 계속 확장하는 살아있는 문서입니다.
-> 마지막 갱신: 2026-06-16
+> 마지막 갱신: 2026-06-20
 
 ## 1. 회사 소개
 
@@ -81,6 +81,8 @@
 - 첫 Attach 시 TIA Portal에 접근 허용 팝업 → "예" 클릭 필요
 
 ## 7. 검증된 기술 사실 (재조사 불필요)
+
+> ⚠️ **2026-06-20 정정**: 아래 "HSP 누락 시 절대 못 엶" · "GUI로 연 프로젝트 attach=`Projects.Count=0`" · (6·8번의) "라이선스 부재"는 **현재 PC(DESKTOP-JBI8A5V)에선 더 이상 해당 없음.** Openness가 SCALANCE 5개 포함 프로젝트를 attach해 `Projects.Count=1`로 트리까지 읽고, 블록 **컴파일·Export(추출)** 까지 성공함(STEP 7 Professional 라이선스 동작). 상세·근거는 **11번 항목** 참조. (아래 옛 기록은 이력 보존용)
 
 - **Openness는 HSP/제품 누락 시 프로젝트를 절대 못 엶**: `Siemens.Engineering.xml` 공식 문서 확인. 모든 `ProjectComposition.Open*` 메서드가 `MissingProductsException`을 던짐. 열기 옵션 `ProjectOpenMode`는 `Primary`/`Secondary` 두 값뿐 — "누락 무시 열기" 없음. → 회사 프로젝트(SCALANCE 포함)는 **HSP0398 설치 후에만** API로 열림. GUI는 경고 무시 후 열기 가능(별개).
 - **GUI로 연 프로젝트는 Attach해도 `tia.Projects.Count = 0`**: 사람이 화면에서 연 프로젝트를 API가 읽지 못함 (2분 폴링해도 0). → API로 읽으려면 내가 직접 Open 해야 함.
@@ -162,7 +164,7 @@
 3. 라이선스 PC에서 **import 테스트**로 전체 루프 완성 (라이선스 확인: USB/다른PC/서버 — 여전히 열린 과제).
 4. GitHub push: zip `Desktop\bsfa-tia-toolkit.zip`는 **io-convert 추가 전 버전 → 공유 전 재생성 필요**.
 
-> 참고: 위 6·8번의 옛 "다음 세션" 목록은 과거 기록. **이 10번 항목이 최신.**
+> 참고: 위 6·8번의 옛 "다음 세션" 목록은 과거 기록. 이 10번은 2026-06-16 기준 — **현재 최신은 맨 아래 11번(2026-06-20).**
 
 ## 9. 용어집
 
@@ -176,3 +178,31 @@
 | UDT | User Defined Type — 사용자 정의 데이터 타입 |
 | PackML | 포장 기계 표준 상태 머신 모델 (ISA-TR88) |
 | EPLAN | 전기 설계 CAD 소프트웨어 |
+
+## 11. 최신 진행 (2026-06-20) — ★현재 최신: Openness 직접 추출 검증 + 추출/엑셀 도구화
+
+> 이 항목이 가장 최신. (6·8·10번의 옛 "다음 세션"은 과거 기록.) 상세 방법론은 [docs/tia-openness-extraction.md](docs/tia-openness-extraction.md)·[docs/tia-extraction-edge-cases.md](docs/tia-extraction-edge-cases.md).
+
+**환경 정정 (현재 PC = DESKTOP-JBI8A5V):**
+- ★ **TIA Openness end-to-end 동작** — attach → PLC 트리 → `block.Export()` → SimaticML XML. **HSP0398/SCALANCE 우회 불필요**(SCALANCE 5개 그대로인 채 attach `Projects.Count=1`). → 7번 옛 사실 정정.
+- ★ **STEP 7 Professional 라이선스 동작** — 블록 컴파일·Export 성공(옛 "라이선스 부재"는 현재 PC에선 해소).
+- `block.Export()` 한 호출로 OB/FB/FC/DB **및 SCL 블록까지** 전부 XML 추출됨.
+
+**검증·산출:**
+- 대상: `CP_A4_전착스키드회송`(바탕화면 `CP_A4_TEST`, S7-1500 `CP_A4_CPU`). 블록 226 / UDT 71 / 태그테이블 19 / 태그 2697.
+- 스킬 `tia-block-extract`(프로젝트 전용) 정비: 그룹/이름 필터 + **미컴파일=자동컴파일 후 추출(`-AutoCompile` 기본 ON)** + 진짜 에러는 `_extract_errors.txt`(위치·내용) + Safety skip + well-formed 검증. (전역 옛 동일이름 스킬은 백업 후 제거 — 프로젝트로 일원화.)
+- 도구 `tools/block-excel/blocks_to_excel.py`: 형제 블록 XML → **고정값(공통) vs 변동값(형제별)** 엑셀(+구조/파라미터 성격). `02_제어/03_OP` OP01~10 전부 추출 → 풀 엑셀 생성·전달.
+- 발견: `IsConsistent=False`는 에러가 아니라 "미컴파일"일 뿐 — OP 6개 시험컴파일=에러0(컴파일만 하면 됐음). "I/O가 HW 구성에 없음" 경고는 무해(추출 안 막음).
+
+**운영 정책 (메모리에도 기록):**
+- 커밋=유의미 시점마다 자동 / 푸시=사용자 요청 시만 / repo=Public이라 실데이터·비밀 금지(추출물은 repo 밖 `C:\Users\user\Desktop\bsfa-extract-test\`).
+- 추출 시 컴파일 가능한 건 최대한 컴파일, 안 되는 건 위치·내용 정리.
+- **문서 상시 자동 최신화 + 세션 연속성**(CLAUDE.md에 명문화).
+
+**GitHub:** `https://github.com/BSFA1234/bsfa-ai-project` (Public — 사용자 명시 선택). 방법론/스킬/문서만 push, 실데이터 제외.
+
+**▶ 다음 세션 (이게 우선):**
+1. (선택) 변동값 엑셀 **정렬 개선**(위치→역할 기준 마스킹) / "체계적 변동 vs 오타의심" 분리 → 일관성 검사기로.
+2. 다른 그룹(`03_장비`의 OP01~10 등)도 같은 고정/변동 엑셀.
+3. 추출물(엑셀·XML) **사내 서버 999 폴더 정리 저장**(규정 1) + 작업폴더 정리(테스트 잔여물·`nul`).
+4. TIA 프로젝트가 컴파일로 "수정됨" 상태 — 닫을 때 저장 여부는 사용자 결정.
