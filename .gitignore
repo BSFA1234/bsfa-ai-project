@@ -1,0 +1,26 @@
+# === 회사 실제 프로젝트 사본 — 절대 공유 금지 (기밀 IP, 대용량) ===
+tia-projects/
+
+# TIA Portal 프로젝트/아카이브/백업 파일 일반 (혹시 다른 위치에 생겨도 차단)
+*.ap[0-9]*
+*.zap[0-9]*
+*.al[0-9]*
+
+# Claude Code 로컬 전용 설정 (머신별 권한 등 — 공유 안 함)
+.claude/settings.local.json
+
+# io-convert가 생성한 데모 출력물 (재생성 가능)
+tools/io-convert/*-out.xml
+
+# 임시/작업 파일
+*.tmp
+*~
+*.bak
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 참고: 화면 캡처는 Windows TEMP에 생성되므로 저장소에 포함되지 않음.
+# 참고: Claude 메모리는 프로젝트 밖(~/.claude/...)이라 자동으로 제외됨.

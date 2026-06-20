@@ -1,0 +1,6 @@
+Name,DataType,Address,Comment
+P_CC01_I_EPB_비상정지_ch1,Bool,%I20000.0,비상정지 버튼 채널1
+P_CC01_I_EPB_비상정지_ch2,Bool,%I20000.4,비상정지 버튼 채널2
+P_CC01_I_MCC00_On_메인,Bool,%I0.0,메인 모터 On 피드백
+P_CC01_Q_MCC00_Run_메인,Bool,%Q0.0,메인 모터 기동 출력
+P_CC01_I_오븐온도,Int,%IW100,오븐 온도 측정값
